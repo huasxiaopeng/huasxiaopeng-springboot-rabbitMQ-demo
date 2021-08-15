@@ -30,6 +30,9 @@ public class OrderConsumer {
         // 2.转换json
         Order orderEntity = JSONObject.parseObject(msg, Order.class);
         String orderId = orderEntity.getOrderId();
+        /**
+         * 查询定义信息，发现不存在，则需要进行补单操作
+         */
         Order result = orderMapper.findOrderId(orderId);
         if (null!=result ) {
             // 手动将该消息删除
@@ -38,7 +41,7 @@ public class OrderConsumer {
             log.info("<<<消费者消费成功>>> 时间: {}",new Date());
             return;
         }
-        //补单
+        //进行补单操作
         int i = orderMapper.addOrder(orderEntity);
         if(i>0){
             // 手动将该消息删除

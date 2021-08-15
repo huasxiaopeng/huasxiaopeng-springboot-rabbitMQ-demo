@@ -51,6 +51,7 @@ public class OrderProducer implements RabbitTemplate.ConfirmCallback {
         // 设置生产者消息确认机制
         rabbitTemplate.setMandatory(true);
         rabbitTemplate.setConfirmCallback(this);
+        //消息确认的基础类，确认或失败的时候，就会
         CorrelationData correlationData = new CorrelationData();
         correlationData.setId(msgJson);
         String orderExchange = "order_exchange_name"; //订单交换机

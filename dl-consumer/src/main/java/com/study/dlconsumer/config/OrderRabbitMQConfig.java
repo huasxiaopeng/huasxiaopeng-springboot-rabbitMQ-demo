@@ -7,6 +7,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -32,7 +33,7 @@ public class OrderRabbitMQConfig {
     /**
      * 定义派单队列
      */
-    @Bean
+    @Bean(name="directOrderDicQueue")
     public Queue directOrderDicQueue() {
         return new Queue(ORDER_DIC_QUEUE);
     }
@@ -40,7 +41,7 @@ public class OrderRabbitMQConfig {
     /**
      * 定义补派单队列
      */
-    @Bean
+    @Bean(name="directCreateOrderQueue")
     public Queue directCreateOrderQueue() {
         return new Queue(ORDER_CREATE_QUEUE);
     }
@@ -49,7 +50,7 @@ public class OrderRabbitMQConfig {
     /**
      * 定义订单交换机
      */
-    @Bean
+    @Bean(name="directOrderExchange")
     DirectExchange directOrderExchange() {
         return new DirectExchange(ORDER_EXCHANGE_NAME);
     }
@@ -58,16 +59,16 @@ public class OrderRabbitMQConfig {
      * 派单队列与交换机绑定
      */
     @Bean
-    Binding bindingExchangeOrderDicQueue() {
-        return BindingBuilder.bind(directOrderDicQueue()).to(directOrderExchange()).with("orderRoutingKey");
+    Binding bindingExchangeOrderDicQueue(@Qualifier(value ="directOrderDicQueue")Queue directOrderDicQueue, @Qualifier(value = "directOrderExchange" )DirectExchange directOrderExchange) {
+        return BindingBuilder.bind(directOrderDicQueue).to(directOrderExchange).with("orderRoutingKey");
     }
 
     /**
      * 补单队列与交换机绑定
      */
     @Bean
-    Binding bindingExchangeCreateOrder() {
-        return BindingBuilder.bind(directCreateOrderQueue()).to(directOrderExchange()).with("orderRoutingKey");
+    Binding bindingExchangeCreateOrder(@Qualifier(value ="directCreateOrderQueue")Queue directCreateOrderQueue, @Qualifier(value = "directOrderExchange" )DirectExchange directOrderExchange) {
+        return BindingBuilder.bind(directCreateOrderQueue).to(directOrderExchange).with("orderRoutingKey");
     }
 
     @Bean
@@ -79,10 +80,10 @@ public class OrderRabbitMQConfig {
     }
 
     @Bean
-    public void createExchangeQueue (){
-        rabbitAdmin.declareExchange(directOrderExchange());
-        rabbitAdmin.declareQueue(directOrderDicQueue());
-        rabbitAdmin.declareQueue(directCreateOrderQueue());
+    public void createExchangeQueue ( DirectExchange directOrderExchange,Queue directOrderDicQueue, Queue directCreateOrderQueue){
+        rabbitAdmin.declareExchange(directOrderExchange);
+        rabbitAdmin.declareQueue(directOrderDicQueue);
+        rabbitAdmin.declareQueue(directCreateOrderQueue);
     }
 
 }

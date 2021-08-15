@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Date;
 
+/**
+ * 创建订单后--->
+ *          派单队列
+ */
 @Component
 @Slf4j
 public class DispatchConsumer {

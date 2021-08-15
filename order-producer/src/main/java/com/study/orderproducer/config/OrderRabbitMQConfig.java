@@ -7,6 +7,7 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
@@ -58,16 +59,15 @@ public class OrderRabbitMQConfig {
      * 派单队列与交换机绑定
      */
     @Bean
-    Binding bindingExchangeOrderDicQueue() {
-        return BindingBuilder.bind(directOrderDicQueue()).to(directOrderExchange()).with("orderRoutingKey");
+    Binding bindingExchangeOrderDicQueue(@Qualifier(value ="directOrderDicQueue")Queue directOrderDicQueue, @Qualifier(value = "directOrderExchange" )DirectExchange directOrderExchange) {
+        return BindingBuilder.bind(directOrderDicQueue).to(directOrderExchange).with("orderRoutingKey");
     }
-
     /**
      * 补单队列与交换机绑定
      */
     @Bean
-    Binding bindingExchangeCreateOrder() {
-        return BindingBuilder.bind(directCreateOrderQueue()).to(directOrderExchange()).with("orderRoutingKey");
+    Binding bindingExchangeCreateOrder(@Qualifier(value ="directCreateOrderQueue")Queue directCreateOrderQueue, @Qualifier(value = "directOrderExchange" )DirectExchange directOrderExchange) {
+        return BindingBuilder.bind(directCreateOrderQueue).to(directOrderExchange).with("orderRoutingKey");
     }
 
     //创建初始化RabbitAdmin对象
@@ -82,9 +82,9 @@ public class OrderRabbitMQConfig {
 
     //创建交换机和对列
     @Bean
-    public void createExchangeQueue (){
-        rabbitAdmin.declareExchange(directOrderExchange());
-        rabbitAdmin.declareQueue(directOrderDicQueue());
-        rabbitAdmin.declareQueue(directCreateOrderQueue());
+    public void createExchangeQueue ( DirectExchange directOrderExchange,Queue directOrderDicQueue, Queue directCreateOrderQueue){
+        rabbitAdmin.declareExchange(directOrderExchange);
+        rabbitAdmin.declareQueue(directOrderDicQueue);
+        rabbitAdmin.declareQueue(directCreateOrderQueue);
     }
 }
