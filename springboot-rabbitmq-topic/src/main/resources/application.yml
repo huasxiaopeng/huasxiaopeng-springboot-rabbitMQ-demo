@@ -1,0 +1,25 @@
+server:
+  port: 8081
+spring:
+  application:
+    name: springboot-rabbitmq-topic
+  rabbitmq:
+    host: 192.168.5.145
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+#    publisher-confirms: true   #开启发送确认
+    publisher-returns: true  #开启发送失败回退
+    #开启ack
+    listener:
+      direct:
+        acknowledge-mode: manual
+      simple:
+        acknowledge-mode: manual #采取手动应答
+        #concurrency: 1 # 指定最小的消费者数量
+        #max-concurrency: 1 #指定最大的消费者数量
+        retry:
+          enabled: true # 是否支持重试
+    publisher-confirm-type: correlated
+
